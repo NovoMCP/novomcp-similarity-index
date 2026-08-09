@@ -84,6 +84,9 @@ def build(input_glob, out_dir, limit=None, preset=None):
         if preset not in PRESETS:
             sys.exit(f"[build] unknown preset {preset!r}; choices: {list(PRESETS)}")
         where += f" AND ({PRESETS[preset]})"
+    # NOTE: --limit is NOT a random sample. The corpus is sharded by molecular-weight
+    # band, and this reads the first shards in order, so a --limit slice is MW-skewed
+    # (fine for CI; use --preset for a usable non-CI subset).
     lim = f" LIMIT {int(limit)}" if limit else ""
     cols = ", ".join(ALLOWLIST)  # default-deny projection at the source
     query = f"SELECT {cols} FROM read_parquet('{input_glob}') WHERE {where}{lim}"
@@ -141,7 +144,11 @@ def main():
                     help="Corpus parquet: local path/glob or s3:// glob "
                          "(e.g. s3://novomcp-open-corpus/novomcp-open-corpus-lite/*.parquet)")
     ap.add_argument("--out", required=True, help="Output index directory.")
-    ap.add_argument("--limit", type=int, default=None, help="Quick-test slice size (dev/CI only).")
+    ap.add_argument("--limit", type=int, default=None,
+                    help="Quick-test slice size (dev/CI only). NOT a representative sample: it "
+                         "reads the first shards in order, and the corpus is partitioned by "
+                         "molecular-weight band, so a --limit slice skews toward one MW range. "
+                         "For a usable non-CI subset prefer --preset (e.g. druglike).")
     ap.add_argument("--preset", choices=list(PRESETS), default=None,
                     help="Subset filter, e.g. 'druglike' (MW<600 & QED>0.3).")
     args = ap.parse_args()

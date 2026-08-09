@@ -26,6 +26,11 @@ python build_index.py --input 's3://novomcp-open-corpus/novomcp-open-corpus-lite
 python server.py --index ./index --mode in-memory
 ```
 
+> **`--limit` is not a representative sample.** The corpus is partitioned by molecular-weight
+> band and `--limit` reads the first shards in order, so the slice skews toward one MW range.
+> It's meant for CI / smoke tests. For a usable non-CI subset, prefer `--preset druglike`
+> (`MW < 600 & QED > 0.3`), which samples across the corpus by property rather than by shard order.
+
 ## API
 
 **`POST /search`**
