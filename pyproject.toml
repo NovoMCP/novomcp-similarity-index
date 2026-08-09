@@ -1,0 +1,33 @@
+[project]
+name = "novomcp-similarity-index"
+version = "0.1.0"
+description = "Self-hostable exact-Tanimoto similarity search over the NovoMCP Open Corpus (122M compounds)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "NovoMCP" }]
+dependencies = [
+    "FPSim2>=0.7",
+    "rdkit>=2023.3",
+    "fastapi>=0.110",
+    "uvicorn>=0.23",
+    "pyarrow>=14",
+    "duckdb>=0.10",
+    "numpy>=1.24",
+    "tables>=3.8",
+    "pydantic>=2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "httpx>=0.24"]
+
+[project.scripts]
+novomcp-index-build = "build_index:main"
+novomcp-index-serve = "server:main"
+
+[tool.setuptools]
+py-modules = ["build_index", "server"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
